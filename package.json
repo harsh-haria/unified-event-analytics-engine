@@ -1,0 +1,30 @@
+{
+  "name": "unified-event-analytics-engine",
+  "version": "1.0.0",
+  "description": "A scalable backend API for a Website Analytics app that can be integrated with any website or mobile app. The system will allow clients to collect detailed analytics events such as clicks, website visits, referrer data, and device metrics.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harsh-haria/unified-event-analytics-engine.git"
+  },
+  "keywords": [
+    "analytics-engine"
+  ],
+  "author": "Harsh Haria",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/harsh-haria/unified-event-analytics-engine/issues"
+  },
+  "homepage": "https://github.com/harsh-haria/unified-event-analytics-engine#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
