@@ -5,7 +5,7 @@ const DBPool = require('../services/database');
 function GenerateApiKey(appId) {
     try {
         // Generate a secure random token
-        const expirationDays = process.env.API_EXPIRATION_DAYS;
+        const expirationDays = +process.env.API_EXPIRATION_DAYS || 30;
         const apiKeyPlain = crypto.randomBytes(32).toString('hex');
 
         const fullApiKey = `api_${appId}_${apiKeyPlain}`;
@@ -62,8 +62,11 @@ exports.GenerateApiKey = async (appId) => {
 }
 
 exports.GetApiKeysForAppId = async (appId) => {
-    const [rows] = await DBPool.execute('SELECT api_key FROM api_keys WHERE app_id = ? AND active = 1 AND expiry >= NOW()', [appId]);
-    const keyArray = rows.map(item => { return { key: item.api_key, expiry: item.expiry }});
+    const [rows] = await DBPool.execute('SELECT api_key, expiry FROM api_keys WHERE app_id = ? AND active = 1 AND expiry >= NOW()', [appId]);
+    const keyArray = rows.map(item => {
+        let expiry = item.expiry;
+        return { key: item.api_key, expiry: expiry.toISOString().slice(0, 19).replace('T', ' ') }
+    });
     return keyArray;
 }
 

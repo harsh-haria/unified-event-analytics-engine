@@ -13,12 +13,24 @@ const app = express();
 
 dotenv.config();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
   origin: "*",
-  methods: ['GET', 'POST']
+  methods: ['GET', 'POST'],
+  credentials: true,
 }));
 
-app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
