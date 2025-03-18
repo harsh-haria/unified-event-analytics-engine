@@ -1,5 +1,9 @@
 const mysql = require('mysql2');
 
+const dotenv = require('dotenv').config();
+
+console.log(`Connecting to Database ${process.env.DB_NAME}`);
+
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -15,6 +19,20 @@ const pool = mysql.createPool({
     keepAliveInitialDelay: 0,
 });
 
-console.log('Database connected and Pool Created!');
+async function testConnection() {
+    try {
+        await pool.execute('SHOW TABLES', (err, rows) => {
+            if (err) {
+                console.error('Error connecting to database: ', err);
+                return;
+            }
+            console.log('Connected to database: ', rows);
+        });
+    } catch (error) {
+        console.error('Error connecting to database: ', error);
+    }
+}
+
+testConnection();
 
 module.exports = pool.promise();
