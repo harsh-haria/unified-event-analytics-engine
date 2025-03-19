@@ -4,10 +4,10 @@ const dotenv = require("dotenv");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const session = require("express-session");
-const swaggerUi = require("swagger-ui-express");
-const swaggerJsDoc = require("swagger-jsdoc");
 
 const mainRoute = require("./routes/main");
+
+const { swaggerDocs } = require("./services/swagger");
 
 const app = express();
 
@@ -61,3 +61,5 @@ app.use("/api", mainRoute);
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
+
+swaggerDocs(app);

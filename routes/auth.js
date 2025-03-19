@@ -73,6 +73,71 @@ router.get('/authSuccess', async (req, res) => {
   }
 });
 
+
+/**
+ * @openapi
+ * '/auth/api-key':
+ *  get:
+ *     tags:
+ *     - API Key Management
+ *     summary: Retrieve API keys for an application
+ *     description: Returns a list of API keys for a given app ID if the user owns the app.
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *      - name: app_id
+ *        in: query
+ *        description: The ID of the application for which API keys are requested.
+ *        required: true
+ *        schema:
+ *          type: string
+ *     responses:
+ *      200:
+ *        description: Successfully retrieved API keys.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                keys:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      key:
+ *                        type: string
+ *                        description: The API key.
+ *                      expiry:
+ *                        type: string
+ *                        format: date-time
+ *                        description: Expiry date of the API key.
+ *      403:
+ *        description: Invalid App ID provided.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                error:
+ *                  type: string
+ *                  example: Invalid App id provided
+ *      500:
+ *        description: Internal Server Error.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                error:
+ *                  type: string
+ *                  example: Internal Server Error
+ * components:
+ *   securitySchemes:
+ *     cookieAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: Cookie
+*/
 router.get('/api-key', AuthMiddlewares.ValidateUser, async (req, res) => {
   try {
     const userId = req.session.user_id;
@@ -89,6 +154,66 @@ router.get('/api-key', AuthMiddlewares.ValidateUser, async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * '/auth/revoke':
+ *  post:
+ *     tags:
+ *     - API Key Management
+ *     summary: Revoke an API key
+ *     description: Revokes an API key if the user owns it.
+ *     security:
+ *       - cookieAuth: []
+ *       - googleOAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               api-key:
+ *                 type: string
+ *                 description: The API key to be revoked.
+ *     responses:
+ *      200:
+ *        description: Key revoked successfully.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: key revoked successfully
+ *      403:
+ *        description: Invalid API Key provided.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                error:
+ *                  type: string
+ *                  example: Invalid API Key provided
+ *      500:
+ *        description: Internal Server Error.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                error:
+ *                  type: string
+ *                  example: Internal Server Error
+ *
+ * components:
+ *   securitySchemes:
+ *     cookieAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: Cookie
+ */
 router.post('/revoke', AuthMiddlewares.ValidateUser, async (req, res) => {
   try {
     const userId = req.session.user_id;
@@ -105,6 +230,61 @@ router.post('/revoke', AuthMiddlewares.ValidateUser, async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * '/auth/api-key':
+ *  post:
+ *     tags:
+ *     - API Key Management
+ *     summary: Generate a new API key
+ *     description: Generates a new API key for the given application if the user owns the app.
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               app_id:
+ *                 type: string
+ *                 description: The ID of the application for which the API key is generated.
+ *     responses:
+ *      200:
+ *        description: New API Key Generated Successfully.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: New API Key Generated Successfully
+ *                api-key:
+ *                  type: string
+ *                  description: The newly generated API key.
+ *      403:
+ *        description: Invalid App ID provided.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                error:
+ *                  type: string
+ *                  example: Invalid App id provided
+ *      500:
+ *        description: Internal Server Error.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                error:
+ *                  type: string
+ *                  example: Internal Server Error
+*/
 router.post('/api-key', AuthMiddlewares.ValidateUser, async (req, res) => {
   try {
     const userId = req.session.user_id;
