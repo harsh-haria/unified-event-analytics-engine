@@ -47,9 +47,6 @@ exports.validateCollectInput = [
         .optional()
         .isString().withMessage('Screen size must be a string'),
 
-    body('app_id')
-        .notEmpty().withMessage('App ID is required'),
-
     body('user_id')
         .notEmpty().withMessage('User ID is required'),
 ];

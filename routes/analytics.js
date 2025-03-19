@@ -2,18 +2,15 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 
 const EventModel = require('../models/event');
+const KeysModel = require('../models/keys');
 
-const { ValidateUser } = require('../middlewares/auth');
+const { ValidateApiKey, ValidateUser } = require('../middlewares/auth');
 const RateLimiter = require('../middlewares/rate-limiter');
 
 const { validateCollectInput } = require("../middlewares/collect-validations");
 const { validateEventSummaryInput } = require("../middlewares/event-summary-validations");
 
 const router = express.Router();
-
-router.get("/", (req, res) => {
-  res.send("Analytics route");
-});
 
 /**
  * @openapi
@@ -102,7 +99,7 @@ router.get("/", (req, res) => {
  *       in: header
  *       name: X-API-KEY
  */
-router.post('/collect', RateLimiter, ValidateUser, validateCollectInput, async (req, res) => {
+router.post('/collect', RateLimiter, ValidateApiKey, validateCollectInput, async (req, res) => {
   try {
     // validating the input
     const errors = validationResult(req);
@@ -113,12 +110,14 @@ router.post('/collect', RateLimiter, ValidateUser, validateCollectInput, async (
       });
     }
 
-    const { event, url, referrer, device, ipAddress, timestamp, metadata, user_id, app_id } = req.body;
+    const { event, url, referrer, device, ipAddress, timestamp, metadata, user_id } = req.body;
+
+    const appId = req.session.app_id;
 
     // converting to db compatible timestamp
     const convertedTimestamp = new Date(timestamp).toISOString().slice(0, 19).replace('T', ' ');
 
-    await EventModel.SaveEvent(event, url, referrer, device, ipAddress, convertedTimestamp, metadata, user_id, app_id);
+    await EventModel.SaveEvent(event, url, referrer, device, ipAddress, convertedTimestamp, metadata, user_id, appId);
 
     return res.status(200).json({ message: "Analytics data collected successfully" });
   } catch (error) {
@@ -197,7 +196,19 @@ router.get('/event-summary', RateLimiter, ValidateUser, validateEventSummaryInpu
     }
 
     const userId = req.session.user_id;
-    const { event, startDate, endDate, app_id } = req.body;
+
+    // startDate, endDate and app_id are optional
+    const event = req.query.event;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+    const app_id = req.query.app_id;
+
+    if (app_id) {
+      const hasAccess = await KeysModel.ResourceCheck(userId, app_id);
+      if (!hasAccess) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+    }
 
     const eventSummary = await EventModel.GetEventSummary(event, startDate, endDate, app_id, userId);
 

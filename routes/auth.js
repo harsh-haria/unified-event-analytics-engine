@@ -9,7 +9,21 @@ const AppModel = require('../models/apps');
 
 const router = express.Router();
 
-router.get('/register', passport.authenticate('google', { scope: ['profile', 'email'] }));
+/**
+ * @openapi
+ * '/auth/register':
+ *  post:
+ *     tags:
+ *     - API Key Management
+ *     summary: Register a new user
+ *     description: Registers a new user in the system.
+ */
+router.post('/register', (req, res) => {
+  // was using this to test in the browser but not required
+  res.redirect('/api/auth/google');
+});
+
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get(
   '/google/callback',
@@ -49,17 +63,17 @@ router.get('/authSuccess', async (req, res) => {
       let firstName = req.user.name.givenName;
       let lastName = req.user.name.familyName;
       const userId = await UserModel.AddUser(googleId, userEmail, firstName, lastName);
-      
+
       req.session.user_id = userId;
 
       // add new app for the user
       const app = await AppModel.AddApp(userId);
-      
+
       if (app.status !== 200) {
         return res.status(500).json({ message: "Internal data conflict. Please try again later" });
       }
       const appId = app.app_id;
-      
+
       // automatically generate a key for the new app
       await KeysModel.GenerateApiKey(appId);
       return res.status(200).json({ message: 'user account created!' });

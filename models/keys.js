@@ -34,9 +34,15 @@ exports.ResourceCheck = async (userId, appId = null, apiKey = null) => {
     if (!userId && (!appId || !apiKey)) {
         return false;
     }
+    if (appId && apiKey) {
+        const [appRows] = await DBPool.execute('SELECT * FROM api_keys WHERE api_key = ? AND app_id = ? AND (SELECT user_id FROM apps WHERE app_id = ?) = ?', [apiKey, appId, userId]);
+        if (appRows.length) {
+            return true;
+        }
+    }
     if (appId) {
         const [appRows] = await DBPool.execute('SELECT app_id FROM apps WHERE user_id = ? AND app_id = ?', [userId, appId]);
-        if (appRows.length && !apiKey) {
+        if (appRows.length) {
             return true;
         }
     }
@@ -73,4 +79,9 @@ exports.GetApiKeysForAppId = async (appId) => {
 exports.RevokeApiKey = async (apiKey) => {
     await DBPool.execute('UPDATE api_keys SET active = 0 WHERE api_key = ?', [apiKey]);
     return;
+}
+
+exports.GetApiKeyDetails = async (apiKey) => {
+    const [rows] = await DBPool.execute('SELECT *, (SELECT user_id FROM apps WHERE app_id = api_keys.app_id) AS user_id FROM api_keys WHERE api_key = ?', [apiKey]);
+    return rows;
 }

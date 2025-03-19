@@ -26,7 +26,7 @@ exports.GetEventSummary = async (event, startDate, endDate, appId, userId) => {
         uniqueUsersParams.push(appId);
     }
     else {
-        uniqueUsers += ' AND app_id IN (SELECT id FROM apps WHERE user_id = ?)';
+        uniqueUsers += ' AND app_id IN (SELECT app_id FROM apps WHERE user_id = ?)';
         uniqueUsersParams.push(userId);
     }
     const [uniqueUsersRows] = await DBPool.execute(uniqueUsers, uniqueUsersParams);
@@ -48,7 +48,7 @@ exports.GetEventSummary = async (event, startDate, endDate, appId, userId) => {
         queryParams.push(appId);
     }
     else {
-        query += ' AND app_id IN (SELECT id FROM apps WHERE user_id = ?)';
+        query += ' AND app_id IN (SELECT app_id FROM apps WHERE user_id = ?)';
         queryParams.push(userId);
     }
     query += ' GROUP BY device';
@@ -64,7 +64,7 @@ exports.GetEventSummary = async (event, startDate, endDate, appId, userId) => {
 
     return {
         event: event,
-        count: uniqueUsers,
+        count: totalEventCount,
         uniqueUsers: uniqueUsersRows[0].uniqueUsers,
         deviceData: deviceData
     }
