@@ -6,6 +6,7 @@ const AuthMiddlewares = require('../middlewares/auth');
 const UserModel = require('../models/user');
 const KeysModel = require('../models/keys');
 const AppModel = require('../models/apps');
+const RateLimiter = require('../middlewares/rate-limiter');
 
 const router = express.Router();
 
@@ -152,7 +153,7 @@ router.get('/authSuccess', async (req, res) => {
  *       in: header
  *       name: Cookie
 */
-router.get('/api-key', AuthMiddlewares.ValidateUser, async (req, res) => {
+router.get('/api-key', RateLimiter, AuthMiddlewares.ValidateUser, async (req, res) => {
   try {
     const userId = req.session.user_id;
     const appId = req.query.app_id;
@@ -228,7 +229,7 @@ router.get('/api-key', AuthMiddlewares.ValidateUser, async (req, res) => {
  *       in: header
  *       name: Cookie
  */
-router.post('/revoke', AuthMiddlewares.ValidateUser, async (req, res) => {
+router.post('/revoke', RateLimiter, AuthMiddlewares.ValidateUser, async (req, res) => {
   try {
     const userId = req.session.user_id;
     const apiKey = req.body['api-key'];
@@ -299,7 +300,7 @@ router.post('/revoke', AuthMiddlewares.ValidateUser, async (req, res) => {
  *                  type: string
  *                  example: Internal Server Error
 */
-router.post('/api-key', AuthMiddlewares.ValidateUser, async (req, res) => {
+router.post('/api-key', RateLimiter, AuthMiddlewares.ValidateUser, async (req, res) => {
   try {
     const userId = req.session.user_id;
     const appId = req.body['app_id'];
