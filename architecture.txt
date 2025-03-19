@@ -1,0 +1,75 @@
+UNIFIED EVENT ANALYTICS ENGINE - ARCHITECTURE DOCUMENT
+
+OVERVIEW
+The Unified Event Analytics Engine is a robust system designed to collect, process, and analyze event data from various applications. The architecture follows modern best practices for scalability, security, and maintainability.
+
+KEY ARCHITECTURAL DECISIONS
+
+1. BACKEND FRAMEWORK
+- Express.js: Used as the primary Node.js framework to handle HTTP requests, routing, and middleware implementation.
+- Decision rationale: Express provides a lightweight, flexible foundation that's ideal for building RESTful APIs while maintaining high performance.
+
+2. AUTHENTICATION & AUTHORIZATION
+- Multiple auth methods:
+  * OAuth 2.0 with Google (via Passport.js)
+  * API key-based authentication for service-to-service communication
+- Session management: Express-session for maintaining user sessions
+- Decision rationale: This dual approach provides secure user authentication for dashboard access while enabling programmatic API access for data collection.
+
+3. API DESIGN
+- RESTful API principles: Clear resource naming, appropriate HTTP methods
+- OpenAPI/Swagger documentation: Auto-generated API documentation
+- Decision rationale: Well-documented APIs improve developer experience and make integration easier.
+
+4. SECURITY MEASURES
+- Middleware approach:
+  * ValidateApiKey: Validates API keys for programmatic access
+  * ValidateUser: Ensures users have proper permissions
+  * RateLimiter: Prevents abuse through request limiting
+- Input validation: Comprehensive validation using express-validator
+- Decision rationale: Defense-in-depth approach to protect against common attack vectors.
+
+5. DATA ARCHITECTURE
+- Model layer: Separation of data access logic (EventModel, KeysModel)
+- Decision rationale: Clear separation of concerns between data access and business logic.
+
+6. MIDDLEWARE ORGANIZATION
+- Feature-specific middleware files:
+  * collect-validations.js
+  * event-summary-validations.js
+  * auth.js
+  * rate-limiter.js
+- Decision rationale: Modular approach that keeps code organized and maintainable.
+
+7. ERROR HANDLING & VALIDATION
+- Express-validator: Structured validation for all inputs
+- Consistent error responses: Standardized error format
+- Decision rationale: Robust validation prevents data quality issues and improves security.
+
+8. SCALABILITY CONSIDERATIONS
+- Stateless API design: Enables horizontal scaling
+- Rate limiting: Protects against traffic spikes
+- Decision rationale: Prepares the system for growth without architectural changes.
+
+9. ENDPOINTS ORGANIZATION
+- Hierarchical routing: Main router delegates to feature-specific routes
+- Decision rationale: Makes the codebase more maintainable and easier to navigate.
+
+10. CONFIGURATION MANAGEMENT
+- Environment variables: Using dotenv for configuration
+- Decision rationale: Keeps sensitive information out of the codebase and enables environment-specific configuration.
+
+APPLICATION FLOW
+1. Client applications generate events
+2. Events are sent to the /analytics/collect endpoint with API key authentication
+3. Validation middleware ensures data quality
+4. Events are stored in the database via the EventModel
+5. Authenticated users can query analytics data via dashboard endpoints
+   - /analytics/event-summary provides aggregated event data
+   - /analytics/user-stats provides user-specific analytics
+
+FUTURE ARCHITECTURE CONSIDERATIONS
+- Add caching layer for frequently accessed analytics
+- Consider message queues for handling high traffic loads
+- Add support for custom event definitions
+- For very high write systems we can implement master slave architecture for the database
