@@ -81,7 +81,13 @@ exports.RevokeApiKey = async (apiKey) => {
     return;
 }
 
-exports.GetApiKeyDetails = async (apiKey) => {
-    const [rows] = await DBPool.execute('SELECT *, (SELECT user_id FROM apps WHERE app_id = api_keys.app_id) AS user_id FROM api_keys WHERE api_key = ?', [apiKey]);
+exports.GetApiKeyDetails = async (apiKey, isValid=false) => {
+    const [rows] = await DBPool.execute(
+        `
+            SELECT *, (SELECT user_id FROM apps WHERE app_id = api_keys.app_id) AS user_id FROM api_keys
+            WHERE api_key = ? ${ isValid ? 'AND active = 1 AND expiry >= NOW()': ''}
+        `,
+        [apiKey]
+    );
     return rows;
 }

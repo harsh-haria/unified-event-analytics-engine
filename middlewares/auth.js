@@ -10,7 +10,11 @@ exports.ValidateApiKey = async (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const apiKeyDetailsArray = await GetApiKeyDetails(apiKey);
+    const apiKeyDetailsArray = await GetApiKeyDetails(apiKey, true);
+    if (!apiKeyDetailsArray.length) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    
     const apiKeyDetails = apiKeyDetailsArray[0];
 
     req.session.app_id = apiKeyDetails.app_id;
