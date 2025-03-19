@@ -51,3 +51,5 @@ CREATE INDEX idx_app_id ON api_keys (app_id);
 CREATE INDEX idx_api_key ON api_keys (api_key);
 CREATE INDEX idx_user_id ON apps (user_id);
 CREATE INDEX idx_oauth ON users (oauth_id);
+CREATE INDEX idx_user_id_events ON events (user_id);
+CREATE INDEX idx_eventname_events ON events (event);
