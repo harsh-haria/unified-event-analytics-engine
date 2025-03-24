@@ -2,15 +2,40 @@ services:
   mysql-db:
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASS}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: dbadmin
+      MYSQL_DATABASE: events_engine
+      MYSQL_USER: dbadmin
+      MYSQL_PASSWORD: dbadmin
     volumes:
       - ./sql-scripts:/docker-entrypoint-initdb.d
       - db_data:/var/lib/mysql
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - "3306:3306"
+    # networks:
+    #   - mynetw
+
+  # web:
+  #   image: node:20
+  #   depends_on:
+  #     - mysql-db
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   environment:
+  #     - PORT=3090
+  #     - DB_HOST=mysql-db
+  #     - DB_PORT=3306
+  #     - DB_USER=root
+  #     - DB_PASSWORD=root
+  #     - DB_NAME=events_engine
+  #   ports:
+  #     - "3090:3090"
+  #   networks:
+  #     - mynetw
 
 volumes:
   db_data:
+
+# networks:
+#   mynetw:
